@@ -17,7 +17,8 @@ def create_test_data():
             "campus": "主校区",
             "credit_score": 100,
             "registration_date": "2024-01-01 10:00:00",
-            "status": "active"
+            "status": "active",
+            "user_type": "admin"
         },
         "2": {
             "user_id": "2",
@@ -27,7 +28,8 @@ def create_test_data():
             "campus": "东校区",
             "credit_score": 95,
             "registration_date": "2024-01-02 14:30:00",
-            "status": "active"
+            "status": "active",
+            "user_type": "student"
         },
         "3": {
             "user_id": "3",
@@ -37,11 +39,12 @@ def create_test_data():
             "campus": "西校区",
             "credit_score": 98,
             "registration_date": "2024-01-03 09:15:00",
-            "status": "active"
+            "status": "active",
+            "user_type": "teacher"
         }
     }
     
-    # 创建测试商品数据
+    # 创建测试商品数据 - 确保所有用户都能看到所有商品
     products_data = {
         "1": {
             "product_id": "1",
@@ -50,7 +53,7 @@ def create_test_data():
             "price": 120.0,
             "original_price": 150.0,
             "category": "服装鞋帽",
-            "seller_id": "2",
+            "seller_id": "2",  # student发布的
             "campus": "东校区",
             "condition": "九成新",
             "status": "在售",
@@ -66,8 +69,8 @@ def create_test_data():
             "price": 45.0,
             "original_price": 69.0,
             "category": "图书资料",
-            "seller_id": "2",
-            "campus": "东校区",
+            "seller_id": "3",  # teacher发布的
+            "campus": "西校区",
             "condition": "全新",
             "status": "在售",
             "create_time": "2024-01-11 10:45:00",
@@ -82,8 +85,8 @@ def create_test_data():
             "price": 180.0,
             "original_price": 299.0,
             "category": "电子数码",
-            "seller_id": "3",
-            "campus": "西校区",
+            "seller_id": "2",  # student发布的
+            "campus": "东校区",
             "condition": "九成新",
             "status": "在售",
             "create_time": "2024-01-12 16:30:00",
@@ -93,12 +96,28 @@ def create_test_data():
         },
         "4": {
             "product_id": "4",
+            "title": "高等数学教材",
+            "description": "大学高等数学教材，包含习题解答，适合大一学生使用。",
+            "price": 30.0,
+            "original_price": 50.0,
+            "category": "图书资料",
+            "seller_id": "3",  # teacher发布的
+            "campus": "西校区",
+            "condition": "七成新",
+            "status": "在售",
+            "create_time": "2024-01-13 09:20:00",
+            "images": [],
+            "view_count": 15,
+            "like_count": 1
+        },
+        "5": {
+            "product_id": "5",
             "title": "待审核的商品测试",
             "description": "这是一个测试待审核状态的商品，应该在管理后台中显示为待审核状态。",
             "price": 99.0,
             "original_price": 120.0,
             "category": "其他",
-            "seller_id": "2",
+            "seller_id": "2",  # student发布的
             "campus": "东校区",
             "condition": "七成新",
             "status": "待审核",
@@ -122,6 +141,9 @@ def create_test_data():
     print("管理员 - 用户名: admin, 密码: admin123")
     print("学生用户 - 用户名: student, 密码: student123")
     print("教师用户 - 用户名: teacher, 密码: teacher123")
+    print("\n商品发布者分布：")
+    print("- 学生发布: 二手运动鞋, 无线蓝牙耳机, 待审核商品")
+    print("- 教师发布: Python编程书籍, 高等数学教材")
 
 if __name__ == "__main__":
     create_test_data()

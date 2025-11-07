@@ -21,8 +21,12 @@ class ProductService:
             return {"success": False, "message": "商品发布失败"}
     
     def search_products(self, keyword: str = "", category: str = "", 
-                       campus: str = "", max_price: float = None) -> list:
-        """搜索商品"""
+                       campus: str = "", max_price: float = None, 
+                       show_all: bool = True) -> list:
+        """搜索商品
+        Args:
+            show_all: 是否显示所有商品（包括其他用户的）
+        """
         category_enum = None
         if category:
             try:
@@ -30,6 +34,7 @@ class ProductService:
             except ValueError:
                 pass
         
+        # 搜索时不过滤卖家，显示所有商品
         products = self.product_manager.search_products(keyword, category_enum, campus, max_price)
         
         # 丰富商品信息
@@ -39,6 +44,7 @@ class ProductService:
             enriched_product = product.to_dict()
             enriched_product['seller_name'] = seller.username if seller else "未知用户"
             enriched_product['seller_credit'] = seller.credit_score if seller else 100
+            enriched_product['seller_type'] = seller.get_user_type_display() if seller else "用户"
             enriched_products.append(enriched_product)
         
         return enriched_products
@@ -52,6 +58,7 @@ class ProductService:
             seller = self.user_manager.get_user_by_id(product.seller_id)
             enriched_product = product.to_dict()
             enriched_product['seller_name'] = seller.username if seller else "未知用户"
+            enriched_product['seller_type'] = seller.get_user_type_display() if seller else "用户"
             enriched_products.append(enriched_product)
         
         return enriched_products
@@ -59,3 +66,18 @@ class ProductService:
     def approve_product(self, product_id: str) -> bool:
         """审核通过商品"""
         return self.product_manager.approve_product(product_id)
+    
+    def get_products_by_seller(self, seller_id: str) -> list:
+        """获取指定卖家的商品（用于个人中心）"""
+        products = self.product_manager.products.values()
+        seller_products = [p for p in products if p.seller_id == seller_id]
+        
+        enriched_products = []
+        for product in seller_products:
+            seller = self.user_manager.get_user_by_id(product.seller_id)
+            enriched_product = product.to_dict()
+            enriched_product['seller_name'] = seller.username if seller else "未知用户"
+            enriched_product['seller_type'] = seller.get_user_type_display() if seller else "用户"
+            enriched_products.append(enriched_product)
+        
+        return enriched_products

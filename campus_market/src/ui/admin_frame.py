@@ -214,10 +214,25 @@ class AdminFrame(ttk.Frame):
         ttk.Label(info_frame, text=f"新旧: {product.get('condition', '九成新')}").pack(side="left", padx=(20, 0))
         
         # 卖家信息和发布时间
+        # 在 create_product_card 方法中，找到卖家信息显示的部分，添加用户类型显示：
+
+    # 卖家信息和发布时间
         seller_frame = ttk.Frame(card_frame)
-        seller_frame.pack(fill="x", pady=(0, 8))
-        
-        ttk.Label(seller_frame, text=f"卖家: {product['seller_name']}").pack(side="left")
+        seller_frame.pack(fill="x", padx=15, pady=(0, 8))
+
+# 显示卖家类型
+        seller_type = product.get('seller_type', '用户')
+        seller_type_color = "#3498db" if seller_type == "学生" else "#e74c3c" if seller_type == "教师" else "#95a5a6"
+
+        seller_type_label = ttk.Label(
+            seller_frame, 
+            text=seller_type,
+            foreground=seller_type_color,
+            font=("Arial", 9, "bold")
+        )
+        seller_type_label.pack(side="left")
+
+        ttk.Label(seller_frame, text=f"卖家: {product['seller_name']}").pack(side="left", padx=(5, 0))
         ttk.Label(seller_frame, text=f"发布时间: {product['create_time']}").pack(side="right")
         
         # 审核按钮 - 使用自定义样式确保显示

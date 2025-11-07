@@ -20,11 +20,11 @@ class MainFrame(ttk.Frame):
         
         # 用户信息
         user = self.auth_service.get_current_user()
-        user_label = ttk.Label(nav_frame, text=f"你好，{user.username}", font=("Arial", 12, "bold"))
+        user_label = ttk.Label(nav_frame, text=f"你好，{user.username}({user.get_user_type_display()})", font=("Arial", 12, "bold"))
         user_label.pack(side="left")
         
         # 管理入口（仅管理员可见）
-        if user.username == "admin":
+        if user.user_type == "admin":
             admin_btn = ttk.Button(nav_frame, text="管理后台", command=self.switch_to_admin)
             admin_btn.pack(side="right", padx=(0, 10))
         
@@ -55,6 +55,19 @@ class MainFrame(ttk.Frame):
             ttk.Radiobutton(category_frame, text=category, value=category, 
                            variable=self.category_var, command=self.search_products).pack(side="left", padx=10)
         
+        # 校区筛选
+        campus_frame = ttk.Frame(self)
+        campus_frame.pack(fill="x", padx=20, pady=5)
+        
+        ttk.Label(campus_frame, text="校区:").pack(side="left")
+        
+        self.campus_var = tk.StringVar(value="全部")
+        campuses = ["全部", "东校区", "西校区", "主校区", "南校区", "北校区"]
+        
+        for campus in campuses:
+            ttk.Radiobutton(campus_frame, text=campus, value=campus, 
+                           variable=self.campus_var, command=self.search_products).pack(side="left", padx=10)
+        
         # 商品列表
         list_frame = ttk.Frame(self)
         list_frame.pack(fill="both", expand=True, padx=20, pady=10)
@@ -79,17 +92,17 @@ class MainFrame(ttk.Frame):
         publish_btn = ttk.Button(self, text="发布商品", command=self.switch_to_publish, style="Accent.TButton")
         publish_btn.pack(pady=10)
     
-    def load_products(self, keyword="", category="全部"):
+    def load_products(self, keyword="", category="全部", campus="全部"):
         # 清空现有商品
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
         
-        # 获取商品数据
-        campus = self.auth_service.get_current_user().campus
+        # 获取商品数据 - 显示所有商品，不过滤卖家
+        campus_filter = campus if campus != "全部" else ""
         max_price = None  # 可以根据需要添加价格筛选
         
         category_str = category if category != "全部" else ""
-        products = self.product_service.search_products(keyword, category_str, campus, max_price)
+        products = self.product_service.search_products(keyword, category_str, campus_filter, max_price, show_all=True)
         
         # 显示商品
         for i, product in enumerate(products):
@@ -117,14 +130,25 @@ class MainFrame(ttk.Frame):
         info_frame = ttk.Frame(card_frame)
         info_frame.pack(fill="x", padx=10, pady=2)
         
-        ttk.Label(info_frame, text=f"卖家: {product['seller_name']}").pack(side="left")
+        # 显示卖家类型（学生/教师）
+        seller_type_color = "#3498db" if product['seller_type'] == "学生" else "#e74c3c"
+        seller_type_label = ttk.Label(
+            info_frame, 
+            text=product['seller_type'],
+            foreground=seller_type_color,
+            font=("Arial", 9, "bold")
+        )
+        seller_type_label.pack(side="left")
+        
+        ttk.Label(info_frame, text=f"卖家: {product['seller_name']}").pack(side="left", padx=(5, 0))
         ttk.Label(info_frame, text=f"信用: {product['seller_credit']}").pack(side="left", padx=(20, 0))
         ttk.Label(info_frame, text=f"校区: {product['campus']}").pack(side="right")
     
     def search_products(self):
         keyword = self.search_var.get()
         category = self.category_var.get()
-        self.load_products(keyword, category)
+        campus = self.campus_var.get()
+        self.load_products(keyword, category, campus)
     
     def logout(self):
         self.auth_service.logout()
