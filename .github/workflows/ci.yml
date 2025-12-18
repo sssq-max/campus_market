@@ -34,4 +34,4 @@ jobs:
       # 4. 运行单元测试
       - name: Run tests with pytest
         run: |
-          pytest
+          pytest tests/
